@@ -123,7 +123,7 @@
 //
 ////////////////////////////////////////////////////////////////
 
-
+precision mediump float;
 
 
 
@@ -806,5 +806,9 @@ float fOpGroove(float a, float b, float ra, float rb) {
 // first object gets a capenter-style tongue attached
 float fOpTongue(float a, float b, float ra, float rb) {
 	return min(a, max(a - ra, abs(b) - rb));
+}
+
+void main(void) {
+    gl_FragColor = vec4(1.0, 0.0, 0.0, 0.0);
 }
 
