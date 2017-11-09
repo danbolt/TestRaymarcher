@@ -10,6 +10,11 @@ uniform mat4 camera;
 uniform mat4 sphereTransform;
 uniform float sphereRadius;
 
+uniform mat4 lightTransform;
+uniform vec4 lightStrength;
+
+const float lemma = 0.5;
+
 out vec4 outColor;
 
 ////////////////////////////////////////////////////////////////
@@ -697,26 +702,33 @@ void main(void) {
 	vec4 forwardDirection = normalize(vec4(gl_FragCoord.x / resolution.x, gl_FragCoord.y / resolution.y, 1.0, 1.0));
 
 	bool hit = false;
-	for (float i = 0.0; i < 1000.0; i+= 1.0)
+	for (float i = 0.0; i < 500.0; i+= 1.0)
 	{
-		mat4 transformInverse = inverse(sphereTransform);
 		vec4 step = cameraPosition + (forwardDirection * i);
+
+		mat4 transformInverse = inverse(sphereTransform);
 		vec4 spot = transformInverse * step;
 
 		float dist = fSphere(spot.xyz, sphereRadius);
-
 		if (dist < 0.0) {
 			hit = true;
+
+			vec4 lightPosition = transformInverse * lightTransform * vec4(0.0, 0.0, 0.0, 1.0);
+			vec4 lightDirection = normalize(lightPosition - spot);
+
+			vec4 sphereNormal = normalize(vec4(
+		        fSphere(vec3(spot.x + lemma, spot.y, spot.z), sphereRadius) - fSphere(vec3(spot.x - lemma, spot.y, spot.z), sphereRadius),
+		        fSphere(vec3(spot.x, spot.y + lemma, spot.z), sphereRadius) - fSphere(vec3(spot.x, spot.y - lemma, spot.z), sphereRadius),
+		        fSphere(vec3(spot.x, spot.y, spot.z  + lemma), sphereRadius) - fSphere(vec3(spot.x, spot.y, spot.z - lemma), sphereRadius),
+		    0.0));
+
+			outColor = dot(sphereNormal, lightDirection) * vec4(1.0, 0.0, 0.0, 1.0) * lightStrength;
 			break;
 		}
 	}
 	
 
-	if (hit)
-	{
-		outColor = vec4(1.0, 0.0, 0.0, 1.0);
-	}
-	else
+	if (!hit)
 	{
     	outColor = vec4(0.0, 0.0, 0.0, 0.0);
     }
