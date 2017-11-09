@@ -22,7 +22,7 @@ Gameplay.prototype.create = function () {
     this.filter.update();
 };
 Gameplay.prototype.update = function () {
-    //mat4.rotate(this.filter.uniforms.camera.value, this.filter.uniforms.camera.value, 0.01, vec3.fromValues(1, 0, 0));
+    //mat4.translate(this.filter.uniforms.camera.value, this.filter.uniforms.camera.value, vec3.fromValues(0, 0, -0.5));
     //this.filter.update();
 };
 

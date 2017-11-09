@@ -694,12 +694,14 @@ float fOpTongue(float a, float b, float ra, float rb) {
 
 void main(void) {
 	vec4 cameraPosition = camera * vec4(0.0, 0.0, 0.0, 1.0);
-	vec4 forwardDirection = normalize(vec4(gl_FragCoord.x / resolution.x, gl_FragCoord.y / resolution.y, 0.0, 1.0));
+	vec4 forwardDirection = normalize(vec4(gl_FragCoord.x / resolution.x, gl_FragCoord.y / resolution.y, 1.0, 1.0));
 
 	bool hit = false;
-	for (float i = 0.0; i < 1000.0; i+= 1.0) {
+	for (float i = 0.0; i < 1000.0; i+= 1.0)
+	{
 		mat4 transformInverse = inverse(sphereTransform);
-		vec4 spot = transformInverse * (cameraPosition + (forwardDirection * i));
+		vec4 step = cameraPosition + (forwardDirection * i);
+		vec4 spot = transformInverse * step;
 
 		float dist = fSphere(spot.xyz, sphereRadius);
 
@@ -708,6 +710,7 @@ void main(void) {
 			break;
 		}
 	}
+	
 
 	if (hit)
 	{
@@ -717,5 +720,5 @@ void main(void) {
 	{
     	outColor = vec4(0.0, 0.0, 0.0, 0.0);
     }
-}
 
+}
