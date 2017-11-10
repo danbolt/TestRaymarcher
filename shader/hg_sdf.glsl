@@ -697,6 +697,17 @@ float fOpTongue(float a, float b, float ra, float rb) {
 	return min(a, max(a - ra, abs(b) - rb));
 }
 
+float shape(vec3 p) {
+	return fSphere(p, sphereRadius);
+}
+vec4 shapeNormal(vec3 p) {
+	return normalize(vec4(
+        shape(vec3(p.x + lemma, p.y, p.z)) - shape(vec3(p.x - lemma, p.y, p.z)),
+        shape(vec3(p.x, p.y + lemma, p.z)) - shape(vec3(p.x, p.y - lemma, p.z)),
+        shape(vec3(p.x, p.y, p.z  + lemma)) - shape(vec3(p.x, p.y, p.z - lemma)),
+    0.0));
+}
+
 void main(void) {
 	vec4 cameraPosition = camera * vec4(0.0, 0.0, 0.0, 1.0);
 	vec4 forwardDirection = normalize(vec4(gl_FragCoord.x / resolution.x, gl_FragCoord.y / resolution.y, 1.0, 1.0));
@@ -709,21 +720,19 @@ void main(void) {
 		mat4 transformInverse = inverse(sphereTransform);
 		vec4 spot = transformInverse * step;
 
-		float dist = fSphere(spot.xyz, sphereRadius);
+		float dist = shape(spot.xyz);
 		if (dist < 0.0) {
 			hit = true;
 
 			vec4 lightPosition = transformInverse * lightTransform * vec4(0.0, 0.0, 0.0, 1.0);
 			vec4 lightDirection = normalize(lightPosition - spot);
 
-			vec4 sphereNormal = normalize(vec4(
-		        fSphere(vec3(spot.x + lemma, spot.y, spot.z), sphereRadius) - fSphere(vec3(spot.x - lemma, spot.y, spot.z), sphereRadius),
-		        fSphere(vec3(spot.x, spot.y + lemma, spot.z), sphereRadius) - fSphere(vec3(spot.x, spot.y - lemma, spot.z), sphereRadius),
-		        fSphere(vec3(spot.x, spot.y, spot.z  + lemma), sphereRadius) - fSphere(vec3(spot.x, spot.y, spot.z - lemma), sphereRadius),
-		    0.0));
+			vec4 sphereNormal = shapeNormal(spot.xyz);
 
 			outColor = dot(sphereNormal, lightDirection) * vec4(1.0, 0.0, 0.0, 1.0) * lightStrength;
 			break;
+		} else {
+			i += dist;
 		}
 	}
 	

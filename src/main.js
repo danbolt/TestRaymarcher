@@ -20,15 +20,16 @@ Gameplay.prototype.create = function () {
     this.filterTargetImage.height = this.game.height;
     this.filterTargetImage.filters = [ this.filter ];
 
-    mat4.translate(this.filter.uniforms.camera.value, this.filter.uniforms.camera.value, vec3.fromValues(0, 0, -100));
+    mat4.translate(this.filter.uniforms.camera.value, this.filter.uniforms.camera.value, vec3.fromValues(-60, -30, -100));
     mat4.translate(this.filter.uniforms.lightTransform.value, this.filter.uniforms.lightTransform.value, vec3.fromValues(100, 100, -100));
-    mat4.scale(this.filter.uniforms.sphereTransform.value, this.filter.uniforms.sphereTransform.value, vec3.fromValues(1, 1.2, 1));
+    mat4.translate(this.filter.uniforms.sphereTransform.value, this.filter.uniforms.sphereTransform.value, vec3.fromValues(0.5, 0.5, 0.1));
     this.filter.uniforms.lightStrength.value = vec4.fromValues(0.5, 0.5, 0.5, 1.0);
     this.filter.update();
 };
 Gameplay.prototype.update = function () {
-    //mat4.translate(this.filter.uniforms.camera.value, this.filter.uniforms.camera.value, vec3.fromValues(0, 0, -0.5));
-    //this.filter.update();
+    this.filter.uniforms.camera.value = mat4.create();
+    mat4.translate(this.filter.uniforms.camera.value, this.filter.uniforms.camera.value, vec3.fromValues(0, 0, -100));
+    this.filter.update();
 };
 
 let main = function () {
