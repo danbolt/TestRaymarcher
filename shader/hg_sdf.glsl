@@ -707,6 +707,9 @@ vec4 shapeNormal(vec3 p) {
         shape(vec3(p.x, p.y, p.z  + lemma)) - shape(vec3(p.x, p.y, p.z - lemma)),
     0.0));
 }
+vec4 shapeColor(vec3 p) {
+	return vec4(1.0, 0.0, 0.0, 1.0);
+}
 
 void main(void) {
 	vec4 cameraPosition = camera * vec4(0.0, 0.0, 0.0, 1.0);
@@ -729,7 +732,13 @@ void main(void) {
 
 			vec4 sphereNormal = shapeNormal(spot.xyz);
 
-			outColor = dot(sphereNormal, lightDirection) * vec4(1.0, 0.0, 0.0, 1.0) * lightStrength;
+			vec4 ambient = vec4(0.1, 0.1, 0.1, 1.0) * shapeColor(spot.xyz);
+
+			vec4 diffuse = max(vec4(0.0, 0.0, 0.0, 0.0), dot(sphereNormal, lightDirection)) * shapeColor(spot.xyz) * lightStrength;
+			vec4 phongR = 2.0 * dot(lightDirection, sphereNormal) * sphereNormal - lightDirection;
+			float phongI = 0.2 * dot(lightDirection, sphereNormal) + 0.2 * dot(phongR, sphereNormal);
+
+			outColor = diffuse + ambient;
 			break;
 		} else {
 			i += dist;

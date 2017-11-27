@@ -22,7 +22,7 @@ Gameplay.prototype.create = function () {
 
     mat4.translate(this.filter.uniforms.camera.value, this.filter.uniforms.camera.value, vec3.fromValues(-60, -30, -100));
     mat4.translate(this.filter.uniforms.lightTransform.value, this.filter.uniforms.lightTransform.value, vec3.fromValues(100, 100, -100));
-    mat4.translate(this.filter.uniforms.sphereTransform.value, this.filter.uniforms.sphereTransform.value, vec3.fromValues(0.5, 0.5, 0.1));
+    mat4.translate(this.filter.uniforms.sphereTransform.value, this.filter.uniforms.sphereTransform.value, vec3.fromValues(0.5, 0.5, -0.0));
     this.filter.uniforms.lightStrength.value = vec4.fromValues(0.5, 0.5, 0.5, 1.0);
     this.filter.update();
 };
