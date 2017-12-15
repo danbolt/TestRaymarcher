@@ -10,6 +10,9 @@ uniform mat4 camera;
 uniform mat4 sphereTransform;
 uniform float sphereRadius;
 
+uniform mat4 boxTransform;
+uniform float boxRadius;
+
 uniform mat4 lightTransform;
 uniform vec4 lightStrength;
 
@@ -697,18 +700,33 @@ float fOpTongue(float a, float b, float ra, float rb) {
 	return min(a, max(a - ra, abs(b) - rb));
 }
 
-float shape(vec3 p) {
+float shape1(vec3 p) {
 	return fSphere(p, sphereRadius);
 }
-vec4 shapeNormal(vec3 p) {
+vec4 shape1Normal(vec3 p) {
 	return normalize(vec4(
-        shape(vec3(p.x + lemma, p.y, p.z)) - shape(vec3(p.x - lemma, p.y, p.z)),
-        shape(vec3(p.x, p.y + lemma, p.z)) - shape(vec3(p.x, p.y - lemma, p.z)),
-        shape(vec3(p.x, p.y, p.z  + lemma)) - shape(vec3(p.x, p.y, p.z - lemma)),
+        shape1(vec3(p.x + lemma, p.y, p.z)) - shape1(vec3(p.x - lemma, p.y, p.z)),
+        shape1(vec3(p.x, p.y + lemma, p.z)) - shape1(vec3(p.x, p.y - lemma, p.z)),
+        shape1(vec3(p.x, p.y, p.z  + lemma)) - shape1(vec3(p.x, p.y, p.z - lemma)),
     0.0));
 }
-vec4 shapeColor(vec3 p) {
+vec4 shape1Color(vec3 p) {
 	return vec4(1.0, 0.0, 0.0, 1.0);
+}
+
+
+float shape2(vec3 p) {
+	return max(fBox(p, vec3(boxRadius, boxRadius, boxRadius)), -fSphere(p, boxRadius * 1.2));
+}
+vec4 shape2Normal(vec3 p) {
+	return normalize(vec4(
+        shape2(vec3(p.x + lemma, p.y, p.z)) - shape2(vec3(p.x - lemma, p.y, p.z)),
+        shape2(vec3(p.x, p.y + lemma, p.z)) - shape2(vec3(p.x, p.y - lemma, p.z)),
+        shape2(vec3(p.x, p.y, p.z  + lemma)) - shape2(vec3(p.x, p.y, p.z - lemma)),
+    0.0));
+}
+vec4 shape2Color(vec3 p) {
+	return vec4(0.0, 0.2, 1.0, 1.0);
 }
 
 void main(void) {
@@ -722,26 +740,40 @@ void main(void) {
 
 		mat4 transformInverse = inverse(sphereTransform);
 		vec4 spot = transformInverse * step;
-
-		float dist = shape(spot.xyz);
+		float dist = shape1(spot.xyz);
 		if (dist < 0.0) {
 			hit = true;
 
 			vec4 lightPosition = transformInverse * lightTransform * vec4(0.0, 0.0, 0.0, 1.0);
 			vec4 lightDirection = normalize(lightPosition - spot);
 
-			vec4 sphereNormal = shapeNormal(spot.xyz);
+			vec4 sphereNormal = shape1Normal(spot.xyz);
 
-			vec4 ambient = vec4(0.1, 0.1, 0.1, 1.0) * shapeColor(spot.xyz);
+			vec4 ambient = vec4(0.1, 0.1, 0.1, 1.0) * shape1Color(spot.xyz);
 
-			vec4 diffuse = max(vec4(0.0, 0.0, 0.0, 0.0), dot(sphereNormal, lightDirection)) * shapeColor(spot.xyz) * lightStrength;
-			vec4 phongR = 2.0 * dot(lightDirection, sphereNormal) * sphereNormal - lightDirection;
-			float phongI = 0.2 * dot(lightDirection, sphereNormal) + 0.2 * dot(phongR, sphereNormal);
+			vec4 diffuse = max(vec4(0.0, 0.0, 0.0, 0.0), dot(sphereNormal, lightDirection)) * shape1Color(spot.xyz) * lightStrength;
 
 			outColor = diffuse + ambient;
 			break;
-		} else {
-			i += dist;
+		}
+
+		mat4 transformInverse2 = inverse(boxTransform);
+		vec4 spot2 = transformInverse2 * step;
+		float dist2 = shape2(spot2.xyz);
+		if (dist2 < 0.0) {
+			hit = true;
+
+			vec4 lightPosition = transformInverse2 * lightTransform * vec4(0.0, 0.0, 0.0, 1.0);
+			vec4 lightDirection = normalize(lightPosition - spot2);
+
+			vec4 sphereNormal = shape2Normal(spot2.xyz);
+
+			vec4 ambient = vec4(0.1, 0.1, 0.1, 1.0) * shape2Color(spot2.xyz);
+
+			vec4 diffuse = max(vec4(0.0, 0.0, 0.0, 0.0), dot(sphereNormal, lightDirection)) * shape2Color(spot2.xyz) * lightStrength;
+
+			outColor = diffuse + ambient;
+			break;
 		}
 	}
 	
